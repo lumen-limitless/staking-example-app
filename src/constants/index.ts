@@ -1,5 +1,5 @@
-import contractsInfoLocal from '../../../staking-example-contracts/contractsInfo.local.json'
-import contractsInfo from '../../../staking-example-contracts/contractsInfo.json'
+import contractsInfoLocal from '../json/contractsInfo.local.json'
+import contractsInfo from '../json/contractsInfo.json'
 import { Goerli, Hardhat } from '@usedapp/core'
 
 export const CONTRACTS =

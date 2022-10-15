@@ -1,11 +1,12 @@
 import { useCalls, useEthers } from '@usedapp/core'
 import { Contract } from '@ethersproject/contracts'
 import { CHAINID, CONTRACTS } from '../constants'
+import { StakingRewards } from '../typechain'
 
 const staking = new Contract(
   CONTRACTS.contracts.StakingRewards.address,
   CONTRACTS.contracts.StakingRewards.abi
-)
+) as StakingRewards
 
 export const useStakingCalls = () => {
   const { account } = useEthers()

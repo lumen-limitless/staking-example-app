@@ -25,6 +25,8 @@ import Spinner from '../components/ui/Spinner'
 import { CHAINID, CONTRACTS } from '../constants'
 import { NextSeo } from 'next-seo'
 import { signERC2612Permit } from 'eth-permit'
+import { SteakToken } from '../typechain'
+import { StakingRewards } from '../typechain/src'
 
 const Connect = dynamic(() => import('../components/modals/Connect'), {
   ssr: false,
@@ -33,12 +35,12 @@ const Connect = dynamic(() => import('../components/modals/Connect'), {
 const stakingToken = new Contract(
   CONTRACTS.contracts.SteakToken.address,
   CONTRACTS.contracts.SteakToken.abi
-)
+) as SteakToken
 
 const staking = new ethers.Contract(
   CONTRACTS.contracts.StakingRewards.address,
   CONTRACTS.contracts.StakingRewards.abi
-)
+) as StakingRewards
 
 const StakePage: NextPage = () => {
   const { setModalView } = useUI()
