@@ -24,7 +24,7 @@ export default function Layout({ children }: { children?: any }) {
         skip to content
       </a>
       <ModalUI />
-      <header className="fixed  w-full" id="header">
+      <header className="fixed z-10 w-full" id="header">
         <Nav />
       </header>
       <main

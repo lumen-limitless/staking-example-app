@@ -10,7 +10,7 @@ const config: Config = {
   readOnlyChainId: CHAINID,
   readOnlyUrls: RPC,
   multicallVersion: 2,
-  autoConnect: true,
+  autoConnect: false,
   networks: [Hardhat, Goerli],
   pollingInterval: 5000,
   notifications: {
