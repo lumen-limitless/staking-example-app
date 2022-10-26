@@ -1,11 +1,12 @@
 import { Switch } from '@headlessui/react'
 import React from 'react'
 
-interface ToggleProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ToggleProps {
   id?: string
   isActive: boolean
   onToggle: () => void
   iconSet?: { on: JSX.Element; off: JSX.Element }
+  className?: string
 }
 
 export default function Toggle({
@@ -14,7 +15,6 @@ export default function Toggle({
   onToggle,
   iconSet,
   className,
-  ...rest
 }: ToggleProps) {
   return (
     <Switch

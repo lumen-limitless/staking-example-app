@@ -1,8 +1,4 @@
-function cn(...classes: any[]) {
-  return classes.filter(Boolean).join(' ')
-}
-
-interface Props
+interface SectionProps
   extends React.DetailedHTMLProps<React.HTMLProps<HTMLElement>, HTMLElement> {
   fullscreen?: boolean
   layout?: 'start' | 'center'
@@ -24,17 +20,19 @@ export default function Section({
   padding = 'none',
   layout = 'center',
   ...rest
-}: Props) {
+}: SectionProps) {
   return (
     <section
-      className={cn(
+      className={[
         layout === 'center' && 'flex flex-col items-center justify-center',
         layout === 'start' && 'flex flex-col items-center justify-start',
         fullscreen && 'min-h-screen',
         PADDING[padding],
         'relative h-full w-full ',
-        className
-      )}
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
       {...rest}
     >
       {children}

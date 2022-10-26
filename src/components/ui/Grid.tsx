@@ -1,8 +1,4 @@
-function cn(...classes: any[]) {
-  return classes.filter(Boolean).join(' ')
-}
-
-interface Props
+interface GridProps
   extends React.DetailedHTMLProps<
     React.HTMLAttributes<HTMLDivElement>,
     HTMLDivElement
@@ -22,10 +18,15 @@ export default function Grid({
   gap = 'none',
   children,
   className = '',
-  ...props
-}: Props) {
+  ...rest
+}: GridProps) {
   return (
-    <div className={cn('grid grid-cols-12', GAP[gap], className)} {...props}>
+    <div
+      className={['grid grid-cols-12', GAP[gap], className]
+        .filter(Boolean)
+        .join(' ')}
+      {...rest}
+    >
       {children}
     </div>
   )

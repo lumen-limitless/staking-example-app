@@ -3,7 +3,6 @@ const SIZE = {
   sm: 'p-2 text-sm ',
   md: 'p-3 text-base ',
   lg: 'p-5 text-lg ',
-
   none: '',
 }
 
@@ -17,7 +16,8 @@ const COLORS = {
   gray: 'bg-gray-500 ',
 }
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'className'> {
   children?: React.ReactNode
   className?: string
   color?: 'default' | 'blue' | 'green' | 'red' | 'yellow' | 'pink' | 'gray'
