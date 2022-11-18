@@ -1,33 +1,38 @@
-function cn(...classes: any) {
-  return classes.filter(Boolean).join(' ')
-}
-
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  header?: React.ReactNode
-  footer?: React.ReactNode
-  children?: React.ReactNode
-  className?: string
-}
+import React from 'react'
 
 export default function Card({
-  header = undefined,
-  footer = undefined,
   children,
   className = '',
-}: CardProps) {
+}: {
+  children: React.ReactNode
+  className: string
+}) {
   return (
-    <div className={cn(className, 'relative flex flex-1 flex-col')}>
-      {header && (
-        <>
-          <div className="w-full bg-gray-800">{header}</div>
-        </>
-      )}
-
-      <div className="h-full w-full bg-gray-600 px-2 py-4 sm:p-8">
-        {children}
-      </div>
-
-      {footer && <div className="w-full bg-gray-800">{footer}</div>}
+    <div className={[className, ' flex-1 flex-grow'].filter(Boolean).join(' ')}>
+      {Object.keys(Card)
+        .map((key) => {
+          return React.Children.map(children, (child: any) =>
+            child?.type?.name === key ? child : null
+          )
+        })
+        .map((component) => component)}
     </div>
   )
 }
+
+const Header = ({ children }: { children: React.ReactNode }) => (
+  <div className="relative w-full rounded-t bg-gray-800">{children}</div>
+)
+Card.Header = Header
+
+const Body = ({ children }: { children: React.ReactNode }) => (
+  <div className="relative h-full rounded bg-gray-900 p-3 sm:p-9">
+    {children}
+  </div>
+)
+Card.Body = Body
+
+const Footer = ({ children }: { children: React.ReactNode }) => (
+  <div className="relative">{children}</div>
+)
+Card.Footer = Footer

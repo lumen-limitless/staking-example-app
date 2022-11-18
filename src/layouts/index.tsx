@@ -33,8 +33,8 @@ export default function Layout({ children }: { children?: any }) {
       >
         {children}
       </main>
-      <footer className="w-full border-t-2 border-gray-300" id="footer">
-        <p className="text-sm ">
+      <footer id="footer">
+        <p className="text-sm text-zinc-100">
           &copy; {new Date().getFullYear()} Zach Lippa. All rights reserved.
         </p>
       </footer>

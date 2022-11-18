@@ -13,7 +13,7 @@ const COLORS = {
   red: 'bg-red-500 ',
   yellow: 'bg-yellow-500 ',
   pink: 'bg-pink-500',
-  gray: 'bg-gray-500 ',
+  gray: 'bg-zinc-500 ',
 }
 
 interface ButtonProps

@@ -3,14 +3,30 @@ import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import Layout from '../layouts'
 import { DefaultSeo } from 'next-seo'
-import { Config, Hardhat, Goerli, DAppProvider } from '@usedapp/core'
+import {
+  Config,
+  Hardhat,
+  Goerli,
+  DAppProvider,
+  MetamaskConnector,
+  CoinbaseWalletConnector,
+} from '@usedapp/core'
 import { CHAINID, RPC } from '../constants'
+import { WalletConnectConnector } from '@usedapp/wallet-connect-connector'
 
 const config: Config = {
   readOnlyChainId: CHAINID,
   readOnlyUrls: RPC,
   multicallVersion: 2,
   autoConnect: false,
+  connectors: {
+    metamask: new MetamaskConnector(),
+    coinbase: new CoinbaseWalletConnector(),
+    walletConnect: new WalletConnectConnector({
+      rpc: RPC,
+      chainId: CHAINID,
+    }),
+  },
   networks: [Hardhat, Goerli],
   pollingInterval: 5000,
   notifications: {

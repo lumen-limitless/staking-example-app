@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { parseUnits, commify } from '@ethersproject/units'
 import { formatBalance, parseBalance } from '../functions'
 import {
+  useCalls,
   useContractFunction,
   useEthers,
   useTokenAllowance,
@@ -20,13 +21,13 @@ import Grid from '../components/ui/Grid'
 import Toggle from '../components/ui/Toggle'
 import { useBoolean } from 'react-use'
 import dynamic from 'next/dynamic'
-import { useStakingCalls, useUI } from '../hooks'
+import { useUI } from '../hooks'
 import Spinner from '../components/ui/Spinner'
 import { CHAINID, CONTRACTS } from '../constants'
 import { NextSeo } from 'next-seo'
 import { signERC2612Permit } from 'eth-permit'
-import { SteakToken } from '../typechain'
-import { StakingRewards } from '../typechain/src'
+import { SteakToken } from '../types/typechain'
+import { StakingRewards } from '../types/typechain/src'
 
 const Connect = dynamic(() => import('../components/modals/Connect'), {
   ssr: false,
@@ -41,6 +42,52 @@ const staking = new ethers.Contract(
   CONTRACTS.contracts.StakingRewards.address,
   CONTRACTS.contracts.StakingRewards.abi
 ) as StakingRewards
+
+const useStakingCalls = () => {
+  const { account } = useEthers()
+  const results =
+    useCalls(
+      [
+        account && {
+          contract: staking,
+          method: 'balanceOf',
+          args: [account],
+        },
+        {
+          contract: staking,
+          method: 'totalSupply',
+          args: [],
+        },
+        {
+          contract: staking,
+          method: 'rewardRate',
+          args: [],
+        },
+
+        account && {
+          contract: staking,
+          method: 'earned',
+          args: [account],
+        },
+        {
+          contract: staking,
+          method: 'paused',
+          args: [],
+        },
+      ],
+      {
+        chainId: CHAINID,
+      }
+    ) ?? []
+
+  results.forEach((result) => {
+    if (result && result.error) {
+      console.error(`Error encountered: ${result.error.message}`)
+    }
+  })
+
+  return results.map((result) => result?.value?.[0])
+}
 
 const StakePage: NextPage = () => {
   const { setModalView } = useUI()
@@ -126,17 +173,21 @@ const StakePage: NextPage = () => {
         <Container className="max-w-7xl">
           <Grid gap="md">
             <Card className="col-span-6">
-              <h2>APR</h2>
-              <p>{apr?.toFixed(2) + '%' || <Skeleton />}</p>
-            </Card>
-            <Card className="col-span-6">
-              <h2>Total Staked</h2>
-              <p>{formatBalance(totalSupply) || <Skeleton />}</p>
+              <Card.Body>
+                <h2>APR</h2>
+                <p>{apr?.toFixed(2) + '%' || <Skeleton />}</p>
+              </Card.Body>
             </Card>
 
-            <Card
-              className="col-span-12"
-              header={
+            <Card className="col-span-6">
+              <Card.Body>
+                <h2>Total Staked</h2>
+                <p>{formatBalance(totalSupply) || <Skeleton />}</p>
+              </Card.Body>
+            </Card>
+
+            <Card className="col-span-12">
+              <Card.Header>
                 <div className="flex items-center  gap-3 p-3">
                   <Toggle
                     className="absolute top-3 right-3"
@@ -177,188 +228,191 @@ const StakePage: NextPage = () => {
                   />
                   <h1>{`${isWithdrawing ? 'Withdraw' : 'Stake'}`}</h1>
                 </div>
-              }
-            >
-              {!account ? (
-                <>
+              </Card.Header>
+              <Card.Body>
+                {!account ? (
+                  <>
+                    <div className="flex place-content-center">
+                      <Button
+                        size="md"
+                        color="blue"
+                        className=" max-w-sm"
+                        onClick={() => setModalView(<Connect />)}
+                      >
+                        Connect Wallet
+                      </Button>
+                    </div>
+                  </>
+                ) : chainId !== CHAINID ? (
                   <div className="flex place-content-center">
                     <Button
-                      size="md"
                       color="blue"
-                      className=" max-w-sm"
-                      onClick={() => setModalView(<Connect />)}
+                      size="md"
+                      className="max-w-sm"
+                      onClick={() => switchNetwork(CHAINID)}
                     >
-                      Connect Wallet
+                      Switch to Goerli
                     </Button>
                   </div>
-                </>
-              ) : chainId !== CHAINID ? (
-                <div className="flex place-content-center">
-                  <Button
-                    color="blue"
-                    size="md"
-                    className="max-w-sm"
-                    onClick={() => switchNetwork(CHAINID)}
-                  >
-                    Switch to Goerli
-                  </Button>
-                </div>
-              ) : !allowance ? (
-                <Spinner />
-              ) : paused === true ? (
-                <>
+                ) : !allowance ? (
                   <Spinner />
-                </>
-              ) : (
-                <>
-                  {allowance && !permit && parseBalance(allowance) === 0 ? (
-                    <div className="flex flex-col place-content-center">
-                      <Button
-                        color="green"
-                        size="md"
-                        className="mx-auto max-w-md"
-                        onClick={handlePermit}
-                      >
-                        Permit Deposits
-                      </Button>
-                      <TransactionButton
-                        method={approve}
-                        name="Enable Deposits Manually"
-                        args={[staking.address, ethers.constants.MaxUint256]}
-                      />
-                    </div>
-                  ) : (
-                    <>
-                      <div className="mr-3 flex flex-col gap-3 md:mr-9 md:flex-row">
-                        <div className="relative w-full  ">
-                          <input
-                            className="w-full rounded p-3 text-sm text-black "
-                            type="number"
-                            value={amount}
-                            placeholder="0.0"
-                            onChange={(e) => handleAmountInput(e.target.value)}
-                            max={
-                              isWithdrawing
-                                ? formatBalance(balanceOf) || '0'
-                                : formatBalance(tokenBalance || '0') || '0'
-                            }
-                          />
-                          <button
-                            className="absolute right-9 top-0 bottom-0 p-1 text-black"
-                            onClick={() => {
-                              setAmount(
-                                isWithdrawing
-                                  ? formatBalance(balanceOf) || ''
-                                  : formatBalance(tokenBalance || '0') || ''
-                              )
-                            }}
-                          >
-                            MAX
-                          </button>
-                        </div>
-
-                        <div className="flex w-full gap-3">
-                          {isWithdrawing ? (
-                            <TransactionButton
-                              color="blue"
-                              className="mx-auto max-w-xs md:mx-0"
-                              requirement={{
-                                requirement:
-                                  amount !== '' &&
-                                  parseFloat(amount) <=
-                                    (parseBalance(balanceOf) || 0),
-                                message: 'Invalid amount',
-                              }}
-                              method={withdraw}
-                              args={[
-                                amount === ''
-                                  ? ethers.constants.Zero
-                                  : parseUnits(amount),
-                              ]}
-                              name="Withdraw"
-                            />
-                          ) : (
-                            <TransactionButton
-                              color="blue"
-                              className=" mx-auto max-w-xs md:mx-0 "
-                              requirement={{
-                                requirement:
-                                  amount !== '' &&
-                                  parseFloat(amount) <=
-                                    (parseBalance(tokenBalance || '0') || 0),
-                                message: 'Invalid amount',
-                              }}
-                              method={
-                                permit && parseBalance(allowance) === 0
-                                  ? stakeWithPermit
-                                  : stake
-                              }
-                              args={
-                                permit && parseBalance(allowance) === 0
-                                  ? [
-                                      parseUnits(amount || '0'),
-                                      permit.v,
-                                      permit.r,
-                                      permit.s,
-                                    ]
-                                  : [parseUnits(amount || '0')]
-                              }
-                              name="Stake"
-                            />
-                          )}
-                        </div>
-                      </div>
-                      <ul className="my-6 max-w-sm space-y-2 rounded p-3 ring-2 ring-gray-400">
-                        <li className="flex">
-                          Balance:{' '}
-                          {tokenBalance ? (
-                            `${commify(formatBalance(tokenBalance) || '0')} `
-                          ) : (
-                            <Skeleton />
-                          )}{' '}
-                        </li>
-
-                        <li className="flex ">
-                          Staked:{' '}
-                          {balanceOf ? (
-                            `${commify(formatBalance(balanceOf) || '0')} `
-                          ) : (
-                            <Skeleton />
-                          )}
-                        </li>
-
-                        <li className="flex ">
-                          Earnings:{' '}
-                          {earned ? (
-                            ` ${commify(formatBalance(earned) || '0')} `
-                          ) : (
-                            <Skeleton />
-                          )}
-                        </li>
-                      </ul>
-                      <div className="flex w-full flex-col  items-center justify-center gap-3 lg:flex-row">
-                        <TransactionButton
+                ) : paused === true ? (
+                  <>
+                    <Spinner />
+                  </>
+                ) : (
+                  <>
+                    {allowance && !permit && parseBalance(allowance) === 0 ? (
+                      <div className="flex flex-col place-content-center">
+                        <Button
                           color="green"
-                          requirement={{
-                            requirement: (parseBalance(earned) || 0) > 0,
-                          }}
-                          method={getReward}
-                          name="Collect Earnings"
-                        />
-
+                          size="md"
+                          className="mx-auto max-w-md"
+                          onClick={handlePermit}
+                        >
+                          Permit Deposits
+                        </Button>
                         <TransactionButton
-                          color="red"
-                          requirement={{
-                            requirement: (parseBalance(balanceOf) || 0) > 0,
-                          }}
-                          method={exit}
-                          name="Exit Staking"
+                          method={approve}
+                          name="Enable Deposits Manually"
+                          args={[staking.address, ethers.constants.MaxUint256]}
                         />
                       </div>
-                    </>
-                  )}
-                </>
-              )}
+                    ) : (
+                      <>
+                        <div className="mr-3 flex flex-col gap-3 md:mr-9 md:flex-row">
+                          <div className="relative w-full  ">
+                            <input
+                              className="w-full rounded p-3 text-sm text-black "
+                              type="number"
+                              value={amount}
+                              placeholder="0.0"
+                              onChange={(e) =>
+                                handleAmountInput(e.target.value)
+                              }
+                              max={
+                                isWithdrawing
+                                  ? formatBalance(balanceOf) || '0'
+                                  : formatBalance(tokenBalance || '0') || '0'
+                              }
+                            />
+                            <button
+                              className="absolute right-9 top-0 bottom-0 p-1 text-black"
+                              onClick={() => {
+                                setAmount(
+                                  isWithdrawing
+                                    ? formatBalance(balanceOf) || ''
+                                    : formatBalance(tokenBalance || '0') || ''
+                                )
+                              }}
+                            >
+                              MAX
+                            </button>
+                          </div>
+
+                          <div className="flex w-full gap-3">
+                            {isWithdrawing ? (
+                              <TransactionButton
+                                color="blue"
+                                className="mx-auto max-w-xs md:mx-0"
+                                requirement={{
+                                  requirement:
+                                    amount !== '' &&
+                                    parseFloat(amount) <=
+                                      (parseBalance(balanceOf) || 0),
+                                  message: 'Invalid amount',
+                                }}
+                                method={withdraw}
+                                args={[
+                                  amount === ''
+                                    ? ethers.constants.Zero
+                                    : parseUnits(amount),
+                                ]}
+                                name="Withdraw"
+                              />
+                            ) : (
+                              <TransactionButton
+                                color="blue"
+                                className=" mx-auto max-w-xs md:mx-0 "
+                                requirement={{
+                                  requirement:
+                                    amount !== '' &&
+                                    parseFloat(amount) <=
+                                      (parseBalance(tokenBalance || '0') || 0),
+                                  message: 'Invalid amount',
+                                }}
+                                method={
+                                  permit && parseBalance(allowance) === 0
+                                    ? stakeWithPermit
+                                    : stake
+                                }
+                                args={
+                                  permit && parseBalance(allowance) === 0
+                                    ? [
+                                        parseUnits(amount || '0'),
+                                        permit.v,
+                                        permit.r,
+                                        permit.s,
+                                      ]
+                                    : [parseUnits(amount || '0')]
+                                }
+                                name="Stake"
+                              />
+                            )}
+                          </div>
+                        </div>
+                        <ul className="my-6 max-w-sm space-y-2 rounded p-3 ring-2 ring-gray-400">
+                          <li className="flex">
+                            Balance:{' '}
+                            {tokenBalance ? (
+                              `${commify(formatBalance(tokenBalance) || '0')} `
+                            ) : (
+                              <Skeleton />
+                            )}{' '}
+                          </li>
+
+                          <li className="flex ">
+                            Staked:{' '}
+                            {balanceOf ? (
+                              `${commify(formatBalance(balanceOf) || '0')} `
+                            ) : (
+                              <Skeleton />
+                            )}
+                          </li>
+
+                          <li className="flex ">
+                            Earnings:{' '}
+                            {earned ? (
+                              ` ${commify(formatBalance(earned) || '0')} `
+                            ) : (
+                              <Skeleton />
+                            )}
+                          </li>
+                        </ul>
+                        <div className="flex w-full flex-col  items-center justify-center gap-3 lg:flex-row">
+                          <TransactionButton
+                            color="green"
+                            requirement={{
+                              requirement: (parseBalance(earned) || 0) > 0,
+                            }}
+                            method={getReward}
+                            name="Collect Earnings"
+                          />
+
+                          <TransactionButton
+                            color="red"
+                            requirement={{
+                              requirement: (parseBalance(balanceOf) || 0) > 0,
+                            }}
+                            method={exit}
+                            name="Exit Staking"
+                          />
+                        </div>
+                      </>
+                    )}
+                  </>
+                )}
+              </Card.Body>
             </Card>
           </Grid>
         </Container>
