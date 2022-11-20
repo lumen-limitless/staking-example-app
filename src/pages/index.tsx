@@ -116,19 +116,19 @@ const StakePage: NextPage = () => {
     <>
       <NextSeo />
 
-      <Section layout="start" padding="md">
+      <Section padding="sm">
         <Container className="max-w-7xl">
           <Grid gap="md">
             <Card className="col-span-12 md:col-span-6">
               <Card.Body>
-                <h2>APR</h2>
+                <h2 className="text-zinc-500">APR</h2>
                 <p>{apr || <Spinner />}</p>
               </Card.Body>
             </Card>
 
             <Card className="col-span-12 md:col-span-6">
               <Card.Body>
-                <h2>Total Staked</h2>
+                <h2 className="text-zinc-500">Total Staked</h2>
                 {totalSupply ? (
                   commify(formatBalance(totalSupply) || '')
                 ) : (
@@ -261,7 +261,7 @@ const StakePage: NextPage = () => {
                             </button>
                           </div>
 
-                          <div className="flex w-full gap-3">
+                          <div className="flex w-full items-center justify-center gap-3">
                             {isWithdrawing ? (
                               <TransactionButton
                                 color="blue"
