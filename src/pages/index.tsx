@@ -119,14 +119,14 @@ const StakePage: NextPage = () => {
       <Section layout="start" padding="md">
         <Container className="max-w-7xl">
           <Grid gap="md">
-            <Card className="col-span-6">
+            <Card className="col-span-12 md:col-span-6">
               <Card.Body>
                 <h2>APR</h2>
                 <p>{apr || <Spinner />}</p>
               </Card.Body>
             </Card>
 
-            <Card className="col-span-6">
+            <Card className="col-span-12 md:col-span-6">
               <Card.Body>
                 <h2>Total Staked</h2>
                 {totalSupply ? (

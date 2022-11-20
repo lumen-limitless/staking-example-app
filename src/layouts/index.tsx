@@ -29,20 +29,13 @@ export default function Layout({ children }: { children?: any }) {
         ATTENTION: Assets have no real value and are for example purposes only.
         Only interact with contracts on Goerli testnet.
       </Banner>
-      <header className="sticky top-0 z-10 w-full" id="header">
+      <header className="sticky top-0 z-20 w-full" id="header">
         <Nav />
       </header>
-      <main
-        className="relative flex h-full min-h-screen  w-full flex-col"
-        id="main"
-      >
+      <main className="relative flex h-full  w-full flex-col" id="main">
         {children}
       </main>
-      <footer id="footer">
-        <p className="text-sm text-zinc-100">
-          &copy; {new Date().getFullYear()} Zach Lippa. All rights reserved.
-        </p>
-      </footer>
+      <footer id="footer"></footer>
     </>
   )
 }
