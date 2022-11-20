@@ -8,7 +8,7 @@ import {
   useTokenAllowance,
   useTokenBalance,
 } from '@usedapp/core'
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { NextPage } from 'next'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -77,9 +77,9 @@ const StakePage: NextPage = () => {
   const apr = useMemo(() => {
     if (!rewardRate) return null
     if (!totalSupply) return null
-    const r = parseBalance(rewardRate) as number
+    const r = (rewardRate as BigNumber).toNumber()
     const t = parseBalance(totalSupply) as number
-    return (((r * 31557600) / t) * 100).toFixed(2)
+    return `${commify((((r * 31557600) / t) * 100).toFixed(2))}%`
   }, [rewardRate, totalSupply])
 
   const handleAmountInput = (input: string) => {
@@ -129,7 +129,11 @@ const StakePage: NextPage = () => {
             <Card className="col-span-6">
               <Card.Body>
                 <h2>Total Staked</h2>
-                {formatBalance(totalSupply) || <Spinner />}
+                {totalSupply ? (
+                  commify(formatBalance(totalSupply) || '')
+                ) : (
+                  <Spinner />
+                )}
               </Card.Body>
             </Card>
 
@@ -308,7 +312,7 @@ const StakePage: NextPage = () => {
                             )}
                           </div>
                         </div>
-                        <ul className="my-6 max-w-sm space-y-2 rounded p-3 ring-2 ring-gray-400">
+                        <ul className="my-6 max-w-sm space-y-2 rounded p-3 ">
                           <li className="flex">
                             Balance:{' '}
                             {tokenBalance ? (
