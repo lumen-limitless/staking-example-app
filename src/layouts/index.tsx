@@ -1,3 +1,4 @@
+import Banner from '../components/Banner'
 import Nav from '../components/Nav'
 import Modal from '../components/ui/Modal'
 import { useUI } from '../hooks'
@@ -24,11 +25,15 @@ export default function Layout({ children }: { children?: any }) {
         skip to content
       </a>
       <ModalUI />
-      <header className="fixed z-10 w-full" id="header">
+      <Banner>
+        ATTENTION: Assets have no real value and are for example purposes only.
+        Only interact with contracts on Goerli testnet.
+      </Banner>
+      <header className="sticky top-0 z-10 w-full" id="header">
         <Nav />
       </header>
       <main
-        className="relative flex h-full min-h-screen w-full flex-col"
+        className="relative flex h-full min-h-screen  w-full flex-col"
         id="main"
       >
         {children}

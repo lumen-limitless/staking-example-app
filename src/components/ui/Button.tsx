@@ -22,6 +22,7 @@ interface ButtonProps
   className?: string
   color?: 'default' | 'blue' | 'green' | 'red' | 'yellow' | 'pink' | 'gray'
   size?: 'xs' | 'sm' | 'lg' | 'md' | 'none'
+  full?: boolean
   ref?: React.Ref<HTMLButtonElement>
 }
 export default function Button({
@@ -29,6 +30,7 @@ export default function Button({
   className = '',
   color = 'default',
   size = 'none',
+  full = false,
   ...rest
 }: ButtonProps) {
   return (
@@ -36,7 +38,8 @@ export default function Button({
       className={[
         COLORS[color],
         SIZE[size],
-        'inline-flex w-full items-center justify-center gap-1 rounded text-white transition focus:outline-none enabled:drop-shadow-md hover:enabled:brightness-125 disabled:cursor-not-allowed disabled:bg-opacity-20 disabled:text-opacity-60  ',
+        'inline-flex  items-center justify-center gap-1 rounded text-white transition focus:outline-none enabled:drop-shadow-md hover:enabled:brightness-125 disabled:cursor-not-allowed disabled:bg-opacity-20 disabled:text-opacity-60  ',
+        full && 'w-full',
         className,
       ]
         .filter(Boolean)

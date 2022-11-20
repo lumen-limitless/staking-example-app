@@ -4,26 +4,8 @@ import { Hardhat, useEthers } from '@usedapp/core'
 import { useUI } from '../../hooks'
 
 export default function Connect() {
-  const { chainId } = useEthers()
-  const { activateBrowserWallet, activate } = useEthers()
+  const { activateBrowserWallet } = useEthers()
   const { toggleViewingModal } = useUI()
-
-  // const onWalletConnect = useCallback(async () => {
-  //   try {
-  //     const WalletConnectProvider = await import(
-  //       '@walletconnect/web3-provider'
-  //     ).then((mod) => mod.default)
-  //     const provider = new WalletConnectProvider({
-  //       chainId: chainId,
-  //       rpc: { [Hardhat.chainId]: 'http://localhost:8545' },
-  //     })
-  //     await provider.enable()
-  //     await activate(provider)
-  //     toggleViewingModal(false)
-  //   } catch (err) {
-  //     console.error(err)
-  //   }
-  // }, [chainId, toggleViewingModal, activate])
 
   return (
     <>
@@ -32,6 +14,7 @@ export default function Connect() {
         <Button
           color="gray"
           size="lg"
+          full
           onClick={() => {
             activateBrowserWallet()
             toggleViewingModal(false)
@@ -43,6 +26,7 @@ export default function Connect() {
         <Button
           color="gray"
           size="lg"
+          full
           onClick={() => activateBrowserWallet({ type: 'walletConnect' })}
         >
           WalletConnect
@@ -50,6 +34,7 @@ export default function Connect() {
         <Button
           color="gray"
           size="lg"
+          full
           onClick={() => activateBrowserWallet({ type: 'coinbase' })}
         >
           Coinbase Wallet

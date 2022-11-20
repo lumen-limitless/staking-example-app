@@ -3,7 +3,7 @@
   "chainId": "5",
   "contracts": {
     "CookedSteakToken": {
-      "address": "0x0B5cD6a02b0d18a31380E6d0Ec7FFC46094E5938",
+      "address": "0x186C6fE5A39397f78e87645686E23a1D7626D498",
       "abi": [
         {
           "inputs": [],
@@ -340,7 +340,7 @@
       ]
     },
     "StakingRewards": {
-      "address": "0x8F222379EF459BABB487A5BAC80378AEd1BCDa92",
+      "address": "0xa0707E99E254c9A53040499E15C6f838438203B9",
       "abi": [
         {
           "inputs": [
@@ -875,7 +875,7 @@
       ]
     },
     "SteakToken": {
-      "address": "0xf3aE9f538ED0508759544Ee386731E5e6aec2cAC",
+      "address": "0x5aD2824d3B4b21c704F1e7faAA621A1e2b3F6836",
       "abi": [
         {
           "inputs": [

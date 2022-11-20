@@ -9,7 +9,6 @@ import {
   useTokenBalance,
 } from '@usedapp/core'
 import { ethers } from 'ethers'
-import { Contract } from '@ethersproject/contracts'
 import { NextPage } from 'next'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -21,76 +20,23 @@ import Grid from '../components/ui/Grid'
 import Toggle from '../components/ui/Toggle'
 import { useBoolean } from 'react-use'
 import dynamic from 'next/dynamic'
-import { useUI } from '../hooks'
+import {
+  useStakingCalls,
+  useStakingContract,
+  useTokenContract,
+  useUI,
+} from '../hooks'
 import Spinner from '../components/ui/Spinner'
-import { CHAINID, CONTRACTS } from '../constants'
+import { CHAINID } from '../constants'
 import { NextSeo } from 'next-seo'
 import { signERC2612Permit } from 'eth-permit'
-import { SteakToken } from '../types/typechain'
-import { StakingRewards } from '../types/typechain/src'
-
-const Connect = dynamic(() => import('../components/modals/Connect'), {
-  ssr: false,
-})
-
-const stakingToken = new Contract(
-  CONTRACTS.contracts.SteakToken.address,
-  CONTRACTS.contracts.SteakToken.abi
-) as SteakToken
-
-const staking = new ethers.Contract(
-  CONTRACTS.contracts.StakingRewards.address,
-  CONTRACTS.contracts.StakingRewards.abi
-) as StakingRewards
-
-const useStakingCalls = () => {
-  const { account } = useEthers()
-  const results =
-    useCalls(
-      [
-        account && {
-          contract: staking,
-          method: 'balanceOf',
-          args: [account],
-        },
-        {
-          contract: staking,
-          method: 'totalSupply',
-          args: [],
-        },
-        {
-          contract: staking,
-          method: 'rewardRate',
-          args: [],
-        },
-
-        account && {
-          contract: staking,
-          method: 'earned',
-          args: [account],
-        },
-        {
-          contract: staking,
-          method: 'paused',
-          args: [],
-        },
-      ],
-      {
-        chainId: CHAINID,
-      }
-    ) ?? []
-
-  results.forEach((result) => {
-    if (result && result.error) {
-      console.error(`Error encountered: ${result.error.message}`)
-    }
-  })
-
-  return results.map((result) => result?.value?.[0])
-}
+import Connect from '../components/modals/Connect'
 
 const StakePage: NextPage = () => {
   const { setModalView } = useUI()
+  const staking = useStakingContract()
+  const stakingToken = useTokenContract()
+
   const { library, account, chainId, switchNetwork } = useEthers()
 
   const [amount, setAmount] = useState<string>('')
@@ -133,7 +79,7 @@ const StakePage: NextPage = () => {
     if (!totalSupply) return null
     const r = parseBalance(rewardRate) as number
     const t = parseBalance(totalSupply) as number
-    return ((r * 31557600) / t) * 100
+    return (((r * 31557600) / t) * 100).toFixed(2)
   }, [rewardRate, totalSupply])
 
   const handleAmountInput = (input: string) => {
@@ -145,6 +91,7 @@ const StakePage: NextPage = () => {
       console.error('no window.ethereum found')
     }
     if (!account) {
+      console.error('no account found')
       return
     }
 
@@ -169,20 +116,20 @@ const StakePage: NextPage = () => {
     <>
       <NextSeo />
 
-      <Section fullscreen>
+      <Section layout="start" padding="md">
         <Container className="max-w-7xl">
           <Grid gap="md">
             <Card className="col-span-6">
               <Card.Body>
                 <h2>APR</h2>
-                <p>{apr?.toFixed(2) + '%' || <Skeleton />}</p>
+                <p>{apr || <Spinner />}</p>
               </Card.Body>
             </Card>
 
             <Card className="col-span-6">
               <Card.Body>
                 <h2>Total Staked</h2>
-                <p>{formatBalance(totalSupply) || <Skeleton />}</p>
+                {formatBalance(totalSupply) || <Spinner />}
               </Card.Body>
             </Card>
 

@@ -17,8 +17,8 @@ import { WalletConnectConnector } from '@usedapp/wallet-connect-connector'
 const config: Config = {
   readOnlyChainId: CHAINID,
   readOnlyUrls: RPC,
-  multicallVersion: 2,
   autoConnect: false,
+  multicallVersion: 2,
   connectors: {
     metamask: new MetamaskConnector(),
     coinbase: new CoinbaseWalletConnector(),
@@ -27,13 +27,11 @@ const config: Config = {
       chainId: CHAINID,
     }),
   },
-  networks: [Hardhat, Goerli],
+  networks: [Goerli],
   pollingInterval: 5000,
   notifications: {
     expirationPeriod: 1,
   },
-  fastMulticallEncoding: true,
-  noMetamaskDeactivate: true,
 }
 
 function MyApp({ Component, pageProps }: AppProps) {

@@ -9,13 +9,7 @@ export default function Card({
 }) {
   return (
     <div className={[className, ' flex-1 flex-grow'].filter(Boolean).join(' ')}>
-      {Object.keys(Card)
-        .map((key) => {
-          return React.Children.map(children, (child: any) =>
-            child?.type?.name === key ? child : null
-          )
-        })
-        .map((component) => component)}
+      {children}
     </div>
   )
 }
