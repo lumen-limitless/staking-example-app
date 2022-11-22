@@ -1,5 +1,5 @@
 import contractsInfo from '../json/contractsInfo.json'
-import { Goerli, Hardhat } from '@usedapp/core'
+import { Goerli} from '@usedapp/core'
 
 export const CONTRACTS = contractsInfo
 

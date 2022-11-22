@@ -1,39 +1,27 @@
 interface SectionProps
   extends React.DetailedHTMLProps<React.HTMLProps<HTMLElement>, HTMLElement> {
   fullscreen?: boolean
-  layout?: 'start' | 'center'
-  padding?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+  centered?: boolean
 }
 
-const PADDING = {
-  none: '',
-  xs: 'py-6',
-  sm: 'py-12',
-  md: 'py-24',
-  lg: 'py-36',
-  xl: 'py-48',
-}
 export default function Section({
   children,
   className,
   fullscreen,
-  padding = 'none',
-  layout = 'center',
-  ...rest
+  centered,
+  ...props
 }: SectionProps) {
   return (
     <section
       className={[
-        layout === 'center' && 'flex flex-col items-center justify-center',
-        layout === 'start' && 'flex flex-col items-center justify-start',
+        'relative flex h-full w-full flex-col',
         fullscreen && 'min-h-screen',
-        PADDING[padding],
-        'relative h-full w-full ',
+        centered ? 'items-center justify-center' : 'justify-start',
         className,
       ]
         .filter(Boolean)
         .join(' ')}
-      {...rest}
+      {...props}
     >
       {children}
     </section>

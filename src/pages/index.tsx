@@ -19,11 +19,10 @@ import TransactionButton from '../components/ui/TransactionButton'
 import Grid from '../components/ui/Grid'
 import Toggle from '../components/ui/Toggle'
 import { useBoolean } from 'react-use'
-import dynamic from 'next/dynamic'
 import {
   useStakingCalls,
   useStakingContract,
-  useTokenContract,
+  useStakingTokenContract,
   useUI,
 } from '../hooks'
 import Spinner from '../components/ui/Spinner'
@@ -31,11 +30,12 @@ import { CHAINID } from '../constants'
 import { NextSeo } from 'next-seo'
 import { signERC2612Permit } from 'eth-permit'
 import Connect from '../components/modals/Connect'
+import Faucet from '../components/faucet'
 
 const StakePage: NextPage = () => {
   const { setModalView } = useUI()
   const staking = useStakingContract()
-  const stakingToken = useTokenContract()
+  const stakingToken = useStakingTokenContract()
 
   const { library, account, chainId, switchNetwork } = useEthers()
 
@@ -72,12 +72,13 @@ const StakePage: NextPage = () => {
   })
   const exit = useContractFunction(staking, 'exit', { transactionName: 'Exit' })
 
-  const [balanceOf, totalSupply, rewardRate, earned, paused] = useStakingCalls()
+  const [balanceOf, totalSupply, rewardRate, earned, paused, lastFaucetMint] =
+    useStakingCalls()
 
   const apr = useMemo(() => {
     if (!rewardRate) return null
     if (!totalSupply) return null
-    const r = (rewardRate as BigNumber).toNumber()
+    const r = parseBalance(rewardRate) as number
     const t = parseBalance(totalSupply) as number
     return `${commify((((r * 31557600) / t) * 100).toFixed(2))}%`
   }, [rewardRate, totalSupply])
@@ -116,8 +117,9 @@ const StakePage: NextPage = () => {
     <>
       <NextSeo />
 
-      <Section padding="sm">
+      <Section className="py-12">
         <Container className="max-w-7xl">
+          {account ? <Faucet lastFaucetMint={lastFaucetMint} /> : null}
           <Grid gap="md">
             <Card className="col-span-12 md:col-span-6">
               <Card.Body>

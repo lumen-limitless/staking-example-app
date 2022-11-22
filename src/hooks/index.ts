@@ -1,8 +1,3 @@
-import { useStakingCalls } from './useStakingCalls'
-export { useUI } from './useUI'
-export {
-  useContract,
-  useStakingContract,
-  useTokenContract,
-} from './useContract'
-export { useStakingCalls } from './useStakingCalls'
+export * from './useUI'
+export * from './useContract'
+export * from './useStakingCalls'

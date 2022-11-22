@@ -1,10 +1,12 @@
 import { useCalls, useEthers } from '@usedapp/core'
+import { BigNumber } from 'ethers'
 import { CHAINID } from '../constants'
-import { useStakingContract } from './useContract'
+import { useStakingContract, useStakingTokenContract } from './useContract'
 
 export const useStakingCalls = () => {
   const { account } = useEthers()
   const staking = useStakingContract()
+  const stakingToken = useStakingTokenContract()
   const results =
     useCalls(
       [
@@ -33,6 +35,11 @@ export const useStakingCalls = () => {
           method: 'paused',
           args: [],
         },
+        account && {
+          contract: stakingToken,
+          method: 'lastFaucetMint',
+          args: [account],
+        },
       ],
       {
         chainId: CHAINID,
@@ -45,5 +52,12 @@ export const useStakingCalls = () => {
     }
   })
 
-  return results.map((result) => result?.value?.[0])
+  return results.map((result) => result?.value?.[0]) as [
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    Boolean,
+    BigNumber
+  ]
 }

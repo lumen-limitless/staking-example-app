@@ -8,6 +8,7 @@ export default function Nav() {
   const { setModalView } = useUI()
   return (
     <div className="flex h-16 w-full items-center bg-gray-900 px-3 md:px-6 lg:px-9">
+      <h1>Example Staking DApp</h1>
       {account ? (
         <div className="ml-auto flex  items-center justify-center rounded-full bg-gray-700 p-3">
           {shortenIfAddress(account)}

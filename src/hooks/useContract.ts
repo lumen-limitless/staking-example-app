@@ -1,7 +1,11 @@
 import { ethers } from 'ethers'
 import { useMemo } from 'react'
 import { CONTRACTS } from '../constants'
-import { StakingRewards, SteakToken } from '../types/typechain'
+import {
+  CookedSteakToken,
+  StakingRewards,
+  SteakToken,
+} from '../types/typechain'
 
 export const useContract = (address: string, abi: any) => {
   return useMemo(() => {
@@ -17,9 +21,16 @@ export const useStakingContract = () => {
   ) as StakingRewards
 }
 
-export const useTokenContract = () => {
+export const useStakingTokenContract = () => {
   return useContract(
     CONTRACTS.contracts.SteakToken.address,
     CONTRACTS.contracts.SteakToken.abi
   ) as SteakToken
+}
+
+export const useRewardTokenContract = () => {
+  return useContract(
+    CONTRACTS.contracts.CookedSteakToken.address,
+    CONTRACTS.contracts.CookedSteakToken.abi
+  ) as CookedSteakToken
 }
