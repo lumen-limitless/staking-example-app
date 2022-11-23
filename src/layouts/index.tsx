@@ -56,10 +56,13 @@ export default function Layout({ children }: { children?: any }) {
           reserved.
         </p>
         <div className="ml-auto flex gap-3 px-3">
-          <a href="https://github.com/lumen-limitless/staking-example-app">
+          <a
+            href="https://github.com/lumen-limitless/staking-example-app"
+            title="View Github repo"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8"
+              className="h-4 w-4"
               preserveAspectRatio="xMidYMid meet"
               viewBox="0 0 24 24"
             >
