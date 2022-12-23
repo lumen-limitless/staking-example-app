@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react'
 import { parseUnits, commify } from '@ethersproject/units'
 import { formatBalance, parseBalance } from '../functions'
 import {
-  useCalls,
   useContractFunction,
   useEthers,
   useTokenAllowance,
@@ -15,7 +14,7 @@ import Button from '../components/ui/Button'
 import Skeleton from '../components/ui/Skeleton'
 import Section from '../components/ui/Section'
 import Container from '../components/ui/Container'
-import TransactionButton from '../components/ui/TransactionButton'
+import TransactionButton from '../components/TransactionButton'
 import Grid from '../components/ui/Grid'
 import Toggle from '../components/ui/Toggle'
 import { useBoolean } from 'react-use'
@@ -32,6 +31,13 @@ import { signERC2612Permit } from 'eth-permit'
 import Connect from '../components/modals/Connect'
 import Faucet from '../components/faucet'
 
+interface ERC2612Permit {
+  value: string | number
+  deadline: string | number
+  v: number
+  r: string
+  s: string
+}
 const StakePage: NextPage = () => {
   const { setModalView } = useUI()
   const staking = useStakingContract()
@@ -40,11 +46,7 @@ const StakePage: NextPage = () => {
   const { library, account, chainId, switchNetwork } = useEthers()
 
   const [amount, setAmount] = useState<string>('')
-  const [permit, setPermit] = useState<{
-    v: number
-    r: string
-    s: string
-  } | null>(null)
+  const [permit, setPermit] = useState<ERC2612Permit | null>(null)
   const [isWithdrawing, toggle] = useBoolean(false)
   const tokenBalance = useTokenBalance(stakingToken.address, account)
   const allowance = useTokenAllowance(
@@ -80,11 +82,16 @@ const StakePage: NextPage = () => {
     if (!totalSupply) return null
     const r = parseBalance(rewardRate) as number
     const t = parseBalance(totalSupply) as number
-    return `${commify((((r * 31557600) / t) * 100).toFixed(2))}%`
+    const apr = ((r * 31557600) / t) * 100
+    if (isNaN(apr)) return '-%'
+    if (apr < 1) return '<1%'
+    if (apr > 1000000) return '>1,0000,000%'
+    return `${commify(apr.toFixed(2))}%`
   }, [rewardRate, totalSupply])
 
   const handleAmountInput = (input: string) => {
     Number.isNaN(parseFloat(input)) ? setAmount('') : setAmount(input)
+    setPermit(null)
   }
 
   const handlePermit = async () => {
@@ -106,12 +113,12 @@ const StakePage: NextPage = () => {
       },
       account,
       staking.address,
-      ethers.constants.MaxUint256.toString()
+      ethers.utils.parseUnits(amount, 18).toString(),
+      Math.floor((Date.now() / 1000) * 3600) // 1 hour
     )
-    console.log(result)
-    const { v, r, s } = result
+    console.debug(result)
 
-    setPermit({ v, r, s })
+    setPermit(result)
   }
   return (
     <>
@@ -215,154 +222,146 @@ const StakePage: NextPage = () => {
                   </>
                 ) : (
                   <>
-                    {allowance && !permit && parseBalance(allowance) === 0 ? (
-                      <div className="flex flex-col place-content-center">
-                        <Button
-                          color="green"
-                          size="md"
-                          className="mx-auto max-w-md"
-                          onClick={handlePermit}
-                        >
-                          Permit Deposits
-                        </Button>
-                        <TransactionButton
-                          method={approve}
-                          name="Enable Deposits Manually"
-                          args={[staking.address, ethers.constants.MaxUint256]}
+                    <div className="mr-3 flex flex-col items-center gap-3 md:mr-9 md:flex-row">
+                      <div className="relative w-full">
+                        <input
+                          className="w-full rounded p-3 text-sm text-black "
+                          type="number"
+                          value={amount}
+                          placeholder="0.0"
+                          onChange={(e) => handleAmountInput(e.target.value)}
+                          max={
+                            isWithdrawing
+                              ? formatBalance(balanceOf) || '0'
+                              : formatBalance(tokenBalance || '0') || '0'
+                          }
                         />
+                        <button
+                          className="absolute right-9 top-0 bottom-0 p-1 text-black"
+                          onClick={() => {
+                            setAmount(
+                              isWithdrawing
+                                ? formatBalance(balanceOf) || ''
+                                : formatBalance(tokenBalance || '0') || ''
+                            )
+                          }}
+                        >
+                          MAX
+                        </button>
                       </div>
-                    ) : (
-                      <>
-                        <div className="mr-3 flex flex-col gap-3 md:mr-9 md:flex-row">
-                          <div className="relative w-full  ">
-                            <input
-                              className="w-full rounded p-3 text-sm text-black "
-                              type="number"
-                              value={amount}
-                              placeholder="0.0"
-                              onChange={(e) =>
-                                handleAmountInput(e.target.value)
-                              }
-                              max={
-                                isWithdrawing
-                                  ? formatBalance(balanceOf) || '0'
-                                  : formatBalance(tokenBalance || '0') || '0'
-                              }
-                            />
-                            <button
-                              className="absolute right-9 top-0 bottom-0 p-1 text-black"
-                              onClick={() => {
-                                setAmount(
-                                  isWithdrawing
-                                    ? formatBalance(balanceOf) || ''
-                                    : formatBalance(tokenBalance || '0') || ''
-                                )
-                              }}
-                            >
-                              MAX
-                            </button>
-                          </div>
 
-                          <div className="flex w-full items-center justify-center gap-3">
-                            {isWithdrawing ? (
-                              <TransactionButton
-                                color="blue"
-                                className="mx-auto max-w-xs md:mx-0"
-                                requirement={{
-                                  requirement:
-                                    amount !== '' &&
-                                    parseFloat(amount) <=
-                                      (parseBalance(balanceOf) || 0),
-                                  message: 'Invalid amount',
-                                }}
-                                method={withdraw}
-                                args={[
-                                  amount === ''
-                                    ? ethers.constants.Zero
-                                    : parseUnits(amount),
-                                ]}
-                                name="Withdraw"
-                              />
-                            ) : (
-                              <TransactionButton
-                                color="blue"
-                                className=" mx-auto max-w-xs md:mx-0 "
-                                requirement={{
-                                  requirement:
-                                    amount !== '' &&
-                                    parseFloat(amount) <=
-                                      (parseBalance(tokenBalance || '0') || 0),
-                                  message: 'Invalid amount',
-                                }}
-                                method={
-                                  permit && parseBalance(allowance) === 0
-                                    ? stakeWithPermit
-                                    : stake
-                                }
-                                args={
-                                  permit && parseBalance(allowance) === 0
-                                    ? [
-                                        parseUnits(amount || '0'),
-                                        permit.v,
-                                        permit.r,
-                                        permit.s,
-                                      ]
-                                    : [parseUnits(amount || '0')]
-                                }
-                                name="Stake"
-                              />
-                            )}
-                          </div>
-                        </div>
-                        <ul className="my-6 max-w-sm space-y-2 rounded p-3 ">
-                          <li className="flex">
-                            Balance:{' '}
-                            {tokenBalance ? (
-                              `${commify(formatBalance(tokenBalance) || '0')} `
-                            ) : (
-                              <Skeleton />
-                            )}{' '}
-                          </li>
-
-                          <li className="flex ">
-                            Staked:{' '}
-                            {balanceOf ? (
-                              `${commify(formatBalance(balanceOf) || '0')} `
-                            ) : (
-                              <Skeleton />
-                            )}
-                          </li>
-
-                          <li className="flex ">
-                            Earnings:{' '}
-                            {earned ? (
-                              ` ${commify(formatBalance(earned) || '0')} `
-                            ) : (
-                              <Skeleton />
-                            )}
-                          </li>
-                        </ul>
-                        <div className="flex w-full flex-col  items-center justify-center gap-3 lg:flex-row">
+                      <div className="flex w-full items-center justify-center gap-3">
+                        {amount === '' ? (
+                          <>
+                            <Button color="blue" full disabled>
+                              Enter an amount
+                            </Button>
+                          </>
+                        ) : isWithdrawing ? (
                           <TransactionButton
-                            color="green"
+                            color="blue"
+                            full
+                            className=""
                             requirement={{
-                              requirement: (parseBalance(earned) || 0) > 0,
+                              requirement:
+                                amount !== '' &&
+                                parseFloat(amount) <=
+                                  (parseBalance(balanceOf) || 0),
+                              message: 'Invalid amount',
                             }}
-                            method={getReward}
-                            name="Collect Earnings"
+                            method={withdraw}
+                            args={[
+                              amount === ''
+                                ? ethers.constants.Zero
+                                : parseUnits(amount),
+                            ]}
+                            name="Withdraw"
                           />
-
+                        ) : allowance.eq(0) && !permit ? (
+                          <>
+                            <Button full onClick={handlePermit} color="green">
+                              Permit Deposit
+                            </Button>
+                          </>
+                        ) : (
                           <TransactionButton
-                            color="red"
+                            color="blue"
+                            full
+                            className=""
                             requirement={{
-                              requirement: (parseBalance(balanceOf) || 0) > 0,
+                              requirement:
+                                amount !== '' &&
+                                parseFloat(amount) <=
+                                  (parseBalance(tokenBalance || '0') || 0),
+                              message: 'Invalid amount',
                             }}
-                            method={exit}
-                            name="Exit Staking"
+                            method={permit ? stakeWithPermit : stake}
+                            onMethodComplete={() => setPermit(null)}
+                            args={
+                              permit && allowance.eq(0)
+                                ? [
+                                    permit.value,
+                                    permit.deadline,
+                                    permit.v,
+                                    permit.r,
+                                    permit.s,
+                                  ]
+                                : [parseUnits(amount || '0')]
+                            }
+                            name="Stake"
                           />
-                        </div>
-                      </>
-                    )}
+                        )}
+                      </div>
+                    </div>
+                    <ul className="my-6 max-w-sm space-y-2 rounded p-3 ">
+                      <li className="flex">
+                        Balance:{' '}
+                        {tokenBalance ? (
+                          `${commify(formatBalance(tokenBalance) || '0')} `
+                        ) : (
+                          <Skeleton />
+                        )}{' '}
+                      </li>
+
+                      <li className="flex ">
+                        Staked:{' '}
+                        {balanceOf ? (
+                          `${commify(formatBalance(balanceOf) || '0')} `
+                        ) : (
+                          <Skeleton />
+                        )}
+                      </li>
+
+                      <li className="flex ">
+                        Earnings:{' '}
+                        {earned ? (
+                          ` ${commify(formatBalance(earned) || '0')} `
+                        ) : (
+                          <Skeleton />
+                        )}
+                      </li>
+                    </ul>
+                    <div className="block w-full  items-center justify-center space-y-3 lg:flex lg:gap-3 lg:space-y-0">
+                      <TransactionButton
+                        full
+                        color="green"
+                        requirement={{
+                          requirement: (parseBalance(earned) || 0) > 0,
+                        }}
+                        method={getReward}
+                        name="Collect Earnings"
+                      />
+
+                      <TransactionButton
+                        full
+                        color="red"
+                        requirement={{
+                          requirement: (parseBalance(balanceOf) || 0) > 0,
+                        }}
+                        method={exit}
+                        name="Exit Staking"
+                      />
+                    </div>
                   </>
                 )}
               </Card.Body>

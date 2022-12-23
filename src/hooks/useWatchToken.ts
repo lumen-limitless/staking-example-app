@@ -1,5 +1,4 @@
 import { useEthers } from '@usedapp/core'
-import { useEffect } from 'react'
 
 export const useWatchToken = (
   tokenAddress: string,

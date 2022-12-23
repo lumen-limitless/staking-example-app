@@ -1,7 +1,7 @@
 import { useContractFunction } from '@usedapp/core'
 import { BigNumber } from 'ethers'
 import { useStakingTokenContract } from '../hooks/useContract'
-import TransactionButton from './ui/TransactionButton'
+import TransactionButton from './TransactionButton'
 
 export default function Faucet({
   lastFaucetMint,
@@ -26,6 +26,7 @@ export default function Faucet({
       </svg>
       {lastFaucetMint ? (
         <TransactionButton
+          full
           requirement={{
             requirement:
               Math.floor(Date.now() / 1000) - lastFaucetMint.toNumber() > 86400,

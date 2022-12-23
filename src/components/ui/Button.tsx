@@ -1,5 +1,5 @@
 const SIZE = {
-  xs: 'p-1 text-xs  ',
+  xs: 'p-1 text-xs ',
   sm: 'p-2 text-sm ',
   md: 'p-3 text-base ',
   lg: 'p-5 text-lg ',
@@ -7,20 +7,20 @@ const SIZE = {
 }
 
 const COLORS = {
-  default: '',
+  none: '',
   blue: 'bg-blue-500 ',
   green: 'bg-green-500 ',
   red: 'bg-red-500 ',
   yellow: 'bg-yellow-500 ',
   pink: 'bg-pink-500',
-  gray: 'bg-zinc-500 ',
+  gray: 'bg-gray-500 ',
 }
 
-interface ButtonProps
+export interface ButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'className'> {
   children?: React.ReactNode
   className?: string
-  color?: 'default' | 'blue' | 'green' | 'red' | 'yellow' | 'pink' | 'gray'
+  color?: 'none' | 'blue' | 'green' | 'red' | 'yellow' | 'pink' | 'gray'
   size?: 'xs' | 'sm' | 'lg' | 'md' | 'none'
   full?: boolean
   ref?: React.Ref<HTMLButtonElement>
@@ -28,8 +28,8 @@ interface ButtonProps
 export default function Button({
   children,
   className = '',
-  color = 'default',
-  size = 'none',
+  color = 'none',
+  size = 'md',
   full = false,
   ...rest
 }: ButtonProps) {
@@ -38,8 +38,8 @@ export default function Button({
       className={[
         COLORS[color],
         SIZE[size],
-        'inline-flex  items-center justify-center gap-1 rounded text-white transition focus:outline-none enabled:drop-shadow-md hover:enabled:brightness-125 disabled:cursor-not-allowed disabled:bg-opacity-20 disabled:text-opacity-60  ',
         full && 'w-full',
+        ' inline-flex items-center justify-center gap-1 rounded text-white transition focus:outline-none enabled:drop-shadow-md hover:enabled:brightness-125 disabled:cursor-not-allowed disabled:bg-opacity-20 disabled:text-opacity-60  ',
         className,
       ]
         .filter(Boolean)

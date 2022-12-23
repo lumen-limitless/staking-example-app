@@ -49,7 +49,7 @@ export interface StakingRewardsInterface extends utils.Interface {
     "setPaused(bool)": FunctionFragment;
     "setRewardRate(uint256)": FunctionFragment;
     "stake(uint256)": FunctionFragment;
-    "stakeWithPermit(uint256,uint8,bytes32,bytes32)": FunctionFragment;
+    "stakeWithPermit(uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
     "stakingToken()": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
@@ -157,6 +157,7 @@ export interface StakingRewardsInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "stakeWithPermit",
     values: [
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>,
@@ -448,6 +449,7 @@ export interface StakingRewards extends BaseContract {
 
     stakeWithPermit(
       amount: PromiseOrValue<BigNumberish>,
+      deadline: PromiseOrValue<BigNumberish>,
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
@@ -549,6 +551,7 @@ export interface StakingRewards extends BaseContract {
 
   stakeWithPermit(
     amount: PromiseOrValue<BigNumberish>,
+    deadline: PromiseOrValue<BigNumberish>,
     v: PromiseOrValue<BigNumberish>,
     r: PromiseOrValue<BytesLike>,
     s: PromiseOrValue<BytesLike>,
@@ -644,6 +647,7 @@ export interface StakingRewards extends BaseContract {
 
     stakeWithPermit(
       amount: PromiseOrValue<BigNumberish>,
+      deadline: PromiseOrValue<BigNumberish>,
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
@@ -800,6 +804,7 @@ export interface StakingRewards extends BaseContract {
 
     stakeWithPermit(
       amount: PromiseOrValue<BigNumberish>,
+      deadline: PromiseOrValue<BigNumberish>,
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
@@ -906,6 +911,7 @@ export interface StakingRewards extends BaseContract {
 
     stakeWithPermit(
       amount: PromiseOrValue<BigNumberish>,
+      deadline: PromiseOrValue<BigNumberish>,
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,

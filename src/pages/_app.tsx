@@ -27,7 +27,7 @@ const config: Config = {
       chainId: CHAINID,
     }),
   },
-  networks: [Goerli],
+  networks: [Goerli, Hardhat],
   pollingInterval: 5000,
   notifications: {
     expirationPeriod: 1,

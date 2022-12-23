@@ -1,9 +1,9 @@
 {
-  "name": "goerli",
-  "chainId": "5",
+  "name": "localhost",
+  "chainId": "31337",
   "contracts": {
     "CookedSteakToken": {
-      "address": "0x186C6fE5A39397f78e87645686E23a1D7626D498",
+      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
       "abi": [
         {
           "inputs": [],
@@ -340,7 +340,7 @@
       ]
     },
     "StakingRewards": {
-      "address": "0x49e02B094689238379761004Eb6ec5f51ecaCa84",
+      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
       "abi": [
         {
           "inputs": [
@@ -880,7 +880,7 @@
       ]
     },
     "SteakToken": {
-      "address": "0x5aD2824d3B4b21c704F1e7faAA621A1e2b3F6836",
+      "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
       "abi": [
         {
           "inputs": [
