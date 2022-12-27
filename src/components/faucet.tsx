@@ -29,7 +29,7 @@ export default function Faucet({
           full
           requirement={{
             requirement:
-              Math.floor(Date.now() / 1000) - lastFaucetMint.toNumber() > 86400,
+              Math.floor(Date.now() / 1000 - lastFaucetMint.toNumber()) > 86400,
             message: `Next faucet mint available on ${new Date(
               Math.floor((lastFaucetMint.toNumber() + 86400) * 1000)
             ).toUTCString()} `,

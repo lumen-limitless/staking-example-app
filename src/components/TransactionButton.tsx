@@ -23,7 +23,6 @@ export default function TransactionButton({
 }: TransactionButtonProps) {
   return (
     <Button
-      {...props}
       disabled={
         (typeof requirement !== 'undefined' &&
           requirement.requirement === false) ||
@@ -37,6 +36,7 @@ export default function TransactionButton({
           }
         })
       }}
+      {...props}
     >
       {typeof requirement !== 'undefined' && requirement.requirement === false
         ? requirement.message ?? name
