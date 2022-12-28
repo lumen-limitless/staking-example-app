@@ -12,7 +12,7 @@ import {
   CoinbaseWalletConnector,
 } from '@usedapp/core'
 import { CHAINID, RPC } from '../constants'
-import { WalletConnectConnector } from '@usedapp/wallet-connect-connector'
+// import { WalletConnectConnector } from '@usedapp/wallet-connect-connector'
 
 const config: Config = {
   readOnlyChainId: CHAINID,
@@ -22,10 +22,10 @@ const config: Config = {
   connectors: {
     metamask: new MetamaskConnector(),
     coinbase: new CoinbaseWalletConnector(),
-    walletConnect: new WalletConnectConnector({
-      rpc: RPC,
-      chainId: CHAINID,
-    }),
+    // walletConnect: new WalletConnectConnector({
+    //   rpc: RPC,
+    //   chainId: CHAINID,
+    // }),
   },
   networks: [Goerli, Hardhat],
   pollingInterval: 5000,

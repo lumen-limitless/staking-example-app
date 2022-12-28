@@ -1,22 +1,39 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import Button from '../ui/Button'
-import { Hardhat, useEthers } from '@usedapp/core'
+import { useEthers } from '@usedapp/core'
 import { useUI } from '../../hooks'
+import { RPC } from '../../constants'
 
 export default function Connect() {
-  const { activateBrowserWallet } = useEthers()
+  const { activateBrowserWallet, activate } = useEthers()
   const { toggleViewingModal } = useUI()
+
+  const onWalletConnect = async () => {
+    try {
+      const WalletConnectConnector = await import(
+        '@web3-react/walletconnect-connector'
+      ).then((mod) => mod.WalletConnectConnector)
+      const walletconnect = new WalletConnectConnector({
+        rpc: RPC,
+        qrcode: true,
+      })
+      activate(walletconnect)
+      toggleViewingModal(false)
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   return (
     <>
       <div className="my-3 flex flex-col items-center gap-3">
-        <span className="mb-3 text-xl">Select a Wallet</span>
+        <h2 className="mb-3 text-xl">Select a Wallet</h2>
         <Button
-          color="gray"
-          size="lg"
           full
+          size="lg"
+          color="gray"
           onClick={() => {
-            activateBrowserWallet()
+            activateBrowserWallet({ type: 'metamask' })
             toggleViewingModal(false)
           }}
         >
@@ -77,13 +94,7 @@ export default function Connect() {
           </svg>
           MetaMask
         </Button>
-
-        <Button
-          color="gray"
-          size="lg"
-          full
-          onClick={() => activateBrowserWallet({ type: 'walletConnect' })}
-        >
+        <Button full size="lg" color="gray" onClick={onWalletConnect}>
           <svg
             width={24}
             height={24}
@@ -113,10 +124,13 @@ export default function Connect() {
           WalletConnect
         </Button>
         <Button
-          color="gray"
-          size="lg"
           full
-          onClick={() => activateBrowserWallet({ type: 'coinbase' })}
+          size="lg"
+          color="gray"
+          onClick={() => {
+            activateBrowserWallet({ type: 'coinbase' })
+            toggleViewingModal(false)
+          }}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

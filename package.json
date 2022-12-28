@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "next dev",
     "analyze": "ANALYZE=true next build",
-    "build": "next build && next export",
+    "build": "next build",
     "postbuild": "next-sitemap",
     "start": "next start",
     "lint": "next lint",
@@ -16,7 +16,7 @@
   "dependencies": {
     "@headlessui/react": "^1.7.4",
     "@usedapp/core": "^1.2.2",
-    "@usedapp/wallet-connect-connector": "^1.0.1",
+    "@web3-react/walletconnect-connector": "^6.2.13",
     "clsx": "^1.1.1",
     "eth-permit": "^0.2.3",
     "ethers": "^5.7.2",
@@ -31,6 +31,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.2",
+    "@ethersproject/abi": "^5.7.0",
+    "@ethersproject/providers": "^5.7.2",
     "@next/bundle-analyzer": "^13.0.4",
     "@next/env": "^13.0.4",
     "@sentry/nextjs": "^7.28.1",
@@ -47,7 +49,7 @@
     "next-sitemap": "^3.1.32",
     "postcss": "^8.4.19",
     "prettier": "^2.6.2",
-    "prettier-plugin-tailwindcss": "^0.1.13",
+    "prettier-plugin-tailwindcss": "^0.2.1",
     "tailwindcss": "^3.2.4",
     "typescript": "^4.9.3"
   }

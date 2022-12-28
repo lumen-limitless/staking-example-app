@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react'
-import { parseUnits, commify } from '@ethersproject/units'
 import { formatBalance, parseBalance } from '../functions'
 import {
   useContractFunction,
@@ -30,6 +29,7 @@ import { NextSeo } from 'next-seo'
 import { signERC2612Permit } from 'eth-permit'
 import Connect from '../components/modals/Connect'
 import Faucet from '../components/faucet'
+import { commify, parseUnits } from 'ethers/lib/utils'
 
 interface ERC2612Permit {
   value: string | number
